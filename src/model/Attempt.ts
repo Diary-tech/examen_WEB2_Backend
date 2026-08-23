@@ -29,3 +29,16 @@ export interface QuestionCorrection {
   correctChoiceId: number;
   isCorrect: boolean;
 }
+
+export interface ExamResultRow {
+  studentId: number;
+  studentName: string;
+  score: number;
+  submittedAt: Date;
+}
+
+export interface ExamResultsSummary {
+  rows: ExamResultRow[];
+  average: number;
+  attemptsCount: number;
+}
