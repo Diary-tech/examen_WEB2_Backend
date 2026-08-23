@@ -17,41 +17,50 @@ export const courseRepository = {
     async findAll(): Promise<Course[]> {
         const result = await pool.query<Course>(
             `
-      SELECT ${COURSE_COLUMNS}
-      FROM courses
-      ORDER BY code
-      `
+            SELECT ${COURSE_COLUMNS}
+            FROM courses
+            ORDER BY code
+            `
         );
 
         return result.rows;
     },
 
-    async findById(
-        id: number
-    ): Promise<Course | null> {
+    async findById(id: number): Promise<Course | null> {
         const result = await pool.query<Course>(
             `
-      SELECT ${COURSE_COLUMNS}
-      FROM courses
-      WHERE id = $1
-      `,
+            SELECT ${COURSE_COLUMNS}
+            FROM courses
+            WHERE id = $1
+            `,
             [id]
         );
 
         return result.rows[0] ?? null;
     },
 
-    async create(
-        data: CreateCourseInput
-    ): Promise<Course> {
+    async findByCode(code: string): Promise<Course | null> {
         const result = await pool.query<Course>(
             `
-      INSERT INTO courses
-        (code, name, description)
-      VALUES
-        ($1, $2, $3)
-      RETURNING ${COURSE_COLUMNS}
-      `,
+            SELECT ${COURSE_COLUMNS}
+            FROM courses
+            WHERE code = $1
+            `,
+            [code]
+        );
+
+        return result.rows[0] ?? null;
+    },
+
+    async create(data: CreateCourseInput): Promise<Course> {
+        const result = await pool.query<Course>(
+            `
+            INSERT INTO courses
+                (code, name, description)
+            VALUES
+                ($1, $2, $3)
+            RETURNING ${COURSE_COLUMNS}
+            `,
             [
                 data.code,
                 data.name,
@@ -68,14 +77,14 @@ export const courseRepository = {
     ): Promise<Course | null> {
         const result = await pool.query<Course>(
             `
-      UPDATE courses
-      SET
-        code = COALESCE($2, code),
-        name = COALESCE($3, name),
-        description = COALESCE($4, description)
-      WHERE id = $1
-      RETURNING ${COURSE_COLUMNS}
-      `,
+            UPDATE courses
+            SET
+                code = COALESCE($2, code),
+                name = COALESCE($3, name),
+                description = COALESCE($4, description)
+            WHERE id = $1
+            RETURNING ${COURSE_COLUMNS}
+            `,
             [
                 id,
                 data.code ?? null,
@@ -94,15 +103,13 @@ export const courseRepository = {
         );
     },
 
-    async countExamsForCourse(
-        id: number
-    ): Promise<number> {
+    async countExamsForCourse(id: number): Promise<number> {
         const result = await pool.query<{ count: number }>(
             `
-      SELECT COUNT(*)::int AS count
-      FROM exams
-      WHERE course_id = $1
-      `,
+            SELECT COUNT(*)::int AS count
+            FROM exams
+            WHERE course_id = $1
+            `,
             [id]
         );
 
