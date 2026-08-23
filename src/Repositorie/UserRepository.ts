@@ -26,7 +26,6 @@ export const findAllStudents = async (): Promise<User[]> => {
   return result.rows.map(mapUser);
 };
 
-
 export const createUser = async (data: {
   email: string;
   passwordHash: string;
