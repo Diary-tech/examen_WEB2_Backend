@@ -5,3 +5,9 @@ export interface Choice {
   isCorrect: boolean;
   position: number;
 }
+
+export interface CreateChoiceInput {
+  label: string;
+  isCorrect: boolean;
+  position?: number;
+}

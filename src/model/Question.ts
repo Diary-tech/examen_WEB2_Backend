@@ -6,3 +6,17 @@ export interface Question {
   position: number;
   createdAt: Date;
 }
+
+export interface CreateQuestionInput {
+  statement: string;
+  points: number;
+  position?: number;
+  choices: CreateChoiceInput[]; 
+}
+
+export interface UpdateQuestionInput {
+  statement?: string;
+  points?: number;
+  position?: number;
+  choices?: CreateChoiceInput[]; 
+}

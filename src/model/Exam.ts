@@ -7,3 +7,18 @@ export interface Exam {
   endsAt: Date;
   createdAt: Date;
 }
+
+export interface CreateExamInput {
+  courseId: number;
+  title: string;
+  description?: string;
+  startsAt: Date;
+  endsAt: Date;
+}
+
+export interface UpdateExamInput {
+  title?: string;
+  description?: string;
+  startsAt?: Date;
+  endsAt?: Date;
+}
