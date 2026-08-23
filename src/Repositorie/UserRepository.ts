@@ -47,7 +47,6 @@ export const resetPasswordHash = async (id: number, passwordHash: string): Promi
   return result.rows.length ? mapUser(result.rows[0]) : null;
 };
 
-
 export const desactivateStudent = async (id: number): Promise<User | null> => {
   const result = await pool.query(
     "UPDATE users SET is_active = false WHERE id = $1 AND role = 'student' RETURNING *",
