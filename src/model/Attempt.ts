@@ -5,3 +5,7 @@ export interface Attempt {
   submittedAt: Date;
   score: number;
 }
+
+export interface SubmitAttemptInput {
+  answers: { questionId: number; choiceId: number }[];
+}
