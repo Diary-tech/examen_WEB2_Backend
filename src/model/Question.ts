@@ -1,3 +1,5 @@
+import { Choice, CreateChoiceInput, ChoiceForStudent } from './Choice';
+
 export interface Question {
   id: number;
   examId: number;
