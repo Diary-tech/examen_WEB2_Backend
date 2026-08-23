@@ -22,3 +22,15 @@ export interface UpdateQuestionInput {
   position?: number;
   choices?: CreateChoiceInput[]; 
 }
+
+export interface QuestionWithChoices extends Question {
+  choices: Choice[];
+}
+
+export interface QuestionForStudent {
+  id: number;
+  statement: string;
+  points: number;
+  position: number;
+  choices: ChoiceForStudent[];
+}
