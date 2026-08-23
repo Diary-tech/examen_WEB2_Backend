@@ -8,33 +8,31 @@ import {
 } from "../model/Question";
 
 const QUESTION_COLUMNS = `
-  id,
-  exam_id AS "examId",
-  statement,
-  points,
-  position,
-  created_at AS "createdAt"
+    id,
+    exam_id AS "examId",
+    statement,
+    points,
+    position,
+    created_at AS "createdAt"
 `;
 
 const CHOICE_COLUMNS = `
-  id,
-  question_id AS "questionId",
-  label,
-  is_correct AS "isCorrect",
-  position
+    id,
+    question_id AS "questionId",
+    label,
+    is_correct AS "isCorrect",
+    position
 `;
 
-export const QuestionRepository = {
-    async findByExamId(
-        examId: number
-    ): Promise<QuestionWithChoices[]> {
+export const questionRepository = {
+    async findByExamId(examId: number): Promise<QuestionWithChoices[]> {
         const questions = await pool.query<Question>(
             `
-      SELECT ${QUESTION_COLUMNS}
-      FROM questions
-      WHERE exam_id = $1
-      ORDER BY position, id
-      `,
+            SELECT ${QUESTION_COLUMNS}
+            FROM questions
+            WHERE exam_id = $1
+            ORDER BY position, id
+            `,
             [examId]
         );
 
@@ -44,36 +42,30 @@ export const QuestionRepository = {
 
         const choices = await pool.query<Choice>(
             `
-      SELECT ${CHOICE_COLUMNS}
-      FROM choices c
-      JOIN questions q
-        ON q.id = c.question_id
-      WHERE q.exam_id = $1
-      ORDER BY c.position, c.id
-      `,
+            SELECT ${CHOICE_COLUMNS}
+            FROM choices c
+            JOIN questions q ON q.id = c.question_id
+            WHERE q.exam_id = $1
+            ORDER BY c.position, c.id
+            `,
             [examId]
         );
 
-        return questions.rows.map(
-            (question: Question) => ({
-                ...question,
-                choices: choices.rows.filter(
-                    (choice: Choice) =>
-                        choice.questionId === question.id
-                ),
-            })
-        );
+        return questions.rows.map((question: Question) => ({
+            ...question,
+            choices: choices.rows.filter(
+                (choice: Choice) => choice.questionId === question.id
+            ),
+        }));
     },
 
-    async findById(
-        id: number
-    ): Promise<Question | null> {
+    async findById(id: number): Promise<Question | null> {
         const result = await pool.query<Question>(
             `
-      SELECT ${QUESTION_COLUMNS}
-      FROM questions
-      WHERE id = $1
-      `,
+            SELECT ${QUESTION_COLUMNS}
+            FROM questions
+            WHERE id = $1
+            `,
             [id]
         );
 
@@ -91,11 +83,11 @@ export const QuestionRepository = {
 
         const choices = await pool.query<Choice>(
             `
-      SELECT ${CHOICE_COLUMNS}
-      FROM choices
-      WHERE question_id = $1
-      ORDER BY position, id
-      `,
+            SELECT ${CHOICE_COLUMNS}
+            FROM choices
+            WHERE question_id = $1
+            ORDER BY position, id
+            `,
             [id]
         );
 
@@ -114,52 +106,43 @@ export const QuestionRepository = {
         try {
             await client.query("BEGIN");
 
-            const questionResult =
-                await client.query<Question>(
+            const questionResult = await client.query<Question>(
+                `
+                INSERT INTO questions
+                    (exam_id, statement, points, position)
+                VALUES
+                    ($1, $2, $3, $4)
+                RETURNING ${QUESTION_COLUMNS}
+                `,
+                [
+                    examId,
+                    data.statement,
+                    data.points,
+                    data.position ?? 0,
+                ]
+            );
+
+            const question = questionResult.rows[0];
+            const insertedChoices: Choice[] = [];
+
+            for (const [index, choice] of data.choices.entries()) {
+                const choiceResult = await client.query<Choice>(
                     `
-          INSERT INTO questions
-            (exam_id, statement, points, position)
-          VALUES
-            ($1, $2, $3, $4)
-          RETURNING ${QUESTION_COLUMNS}
-          `,
+                    INSERT INTO choices
+                        (question_id, label, is_correct, position)
+                    VALUES
+                        ($1, $2, $3, $4)
+                    RETURNING ${CHOICE_COLUMNS}
+                    `,
                     [
-                        examId,
-                        data.statement,
-                        data.points,
-                        data.position ?? 0,
+                        question.id,
+                        choice.label,
+                        choice.isCorrect,
+                        choice.position ?? index,
                     ]
                 );
 
-            const question =
-                questionResult.rows[0];
-
-            const insertedChoices: Choice[] = [];
-
-            for (
-                const [index, choice]
-                of data.choices.entries()
-                ) {
-                const choiceResult =
-                    await client.query<Choice>(
-                        `
-            INSERT INTO choices
-              (question_id, label, is_correct, position)
-            VALUES
-              ($1, $2, $3, $4)
-            RETURNING ${CHOICE_COLUMNS}
-            `,
-                        [
-                            question.id,
-                            choice.label,
-                            choice.isCorrect,
-                            choice.position ?? index,
-                        ]
-                    );
-
-                insertedChoices.push(
-                    choiceResult.rows[0]
-                );
+                insertedChoices.push(choiceResult.rows[0]);
             }
 
             await client.query("COMMIT");
@@ -185,27 +168,25 @@ export const QuestionRepository = {
         try {
             await client.query("BEGIN");
 
-            const questionResult =
-                await client.query<Question>(
-                    `
-          UPDATE questions
-          SET
-            statement = COALESCE($2, statement),
-            points = COALESCE($3, points),
-            position = COALESCE($4, position)
-          WHERE id = $1
-          RETURNING ${QUESTION_COLUMNS}
-          `,
-                    [
-                        id,
-                        data.statement ?? null,
-                        data.points ?? null,
-                        data.position ?? null,
-                    ]
-                );
+            const questionResult = await client.query<Question>(
+                `
+                UPDATE questions
+                SET
+                    statement = COALESCE($2, statement),
+                    points = COALESCE($3, points),
+                    position = COALESCE($4, position)
+                WHERE id = $1
+                RETURNING ${QUESTION_COLUMNS}
+                `,
+                [
+                    id,
+                    data.statement ?? null,
+                    data.points ?? null,
+                    data.position ?? null,
+                ]
+            );
 
-            const question =
-                questionResult.rows[0];
+            const question = questionResult.rows[0];
 
             if (!question) {
                 await client.query("ROLLBACK");
@@ -222,42 +203,35 @@ export const QuestionRepository = {
 
                 choices = [];
 
-                for (
-                    const [index, choice]
-                    of data.choices.entries()
-                    ) {
-                    const choiceResult =
-                        await client.query<Choice>(
-                            `
-              INSERT INTO choices
-                (question_id, label, is_correct, position)
-              VALUES
-                ($1, $2, $3, $4)
-              RETURNING ${CHOICE_COLUMNS}
-              `,
-                            [
-                                id,
-                                choice.label,
-                                choice.isCorrect,
-                                choice.position ?? index,
-                            ]
-                        );
-
-                    choices.push(
-                        choiceResult.rows[0]
+                for (const [index, choice] of data.choices.entries()) {
+                    const choiceResult = await client.query<Choice>(
+                        `
+                        INSERT INTO choices
+                            (question_id, label, is_correct, position)
+                        VALUES
+                            ($1, $2, $3, $4)
+                        RETURNING ${CHOICE_COLUMNS}
+                        `,
+                        [
+                            id,
+                            choice.label,
+                            choice.isCorrect,
+                            choice.position ?? index,
+                        ]
                     );
+
+                    choices.push(choiceResult.rows[0]);
                 }
             } else {
-                const existing =
-                    await client.query<Choice>(
-                        `
-            SELECT ${CHOICE_COLUMNS}
-            FROM choices
-            WHERE question_id = $1
-            ORDER BY position, id
-            `,
-                        [id]
-                    );
+                const existing = await client.query<Choice>(
+                    `
+                    SELECT ${CHOICE_COLUMNS}
+                    FROM choices
+                    WHERE question_id = $1
+                    ORDER BY position, id
+                    `,
+                    [id]
+                );
 
                 choices = existing.rows;
             }
