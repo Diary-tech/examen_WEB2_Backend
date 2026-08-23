@@ -11,3 +11,10 @@ export interface CreateChoiceInput {
   isCorrect: boolean;
   position?: number;
 }
+
+export interface ChoiceForStudent {
+  id: number;
+  questionId: number;
+  label: string;
+  position: number;
+}
