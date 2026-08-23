@@ -1,125 +1,91 @@
-import { pool } from "../config/Database";
+import { examRepository } from "../Repositorie/examRepository";
+import { courseRepository } from "../Repositorie/courseRepository";
 import {
-    Exam,
     CreateExamInput,
     UpdateExamInput,
 } from "../model/Exam";
+import {
+    BadRequestError,
+    ConflictError,
+    NotFoundError,
+} from "../security/Errors";
 
-const EXAM_COLUMNS = `
-  id,
-  course_id AS "courseId",
-  title,
-  description,
-  start_at AS "startsAt",
-  end_at AS "endsAt",
-  created_at AS "createdAt"
-`;
+export const listExams = async () => {
+    return examRepository.findAll();
+};
 
-export const examRepository = {
-    async findAll(): Promise<Exam[]> {
-        const result = await pool.query<Exam>(
-            `
-            SELECT ${EXAM_COLUMNS}
-            FROM exams
-            ORDER BY start_at DESC
-            `
+export const getExam = async (id: number) => {
+    const exam = await examRepository.findById(id);
+
+    if (!exam) {
+        throw new NotFoundError("Exam not found");
+    }
+
+    return exam;
+};
+
+export const createExam = async (input: CreateExamInput) => {
+    const course = await courseRepository.findById(input.courseId);
+
+    if (!course) {
+        throw new NotFoundError("Course not found");
+    }
+
+    if (input.startsAt >= input.endsAt) {
+        throw new BadRequestError(
+            "The exam start date must be before the end date"
         );
+    }
 
-        return result.rows;
-    },
+    return examRepository.create(input);
+};
 
-    async findById(id: number): Promise<Exam | null> {
-        const result = await pool.query<Exam>(
-            `
-            SELECT ${EXAM_COLUMNS}
-            FROM exams
-            WHERE id = $1
-            `,
-            [id]
+export const updateExam = async (
+    id: number,
+    input: UpdateExamInput
+) => {
+    const exam = await examRepository.findById(id);
+
+    if (!exam) {
+        throw new NotFoundError("Exam not found");
+    }
+
+    const startsAt = input.startsAt ?? exam.startsAt;
+    const endsAt = input.endsAt ?? exam.endsAt;
+
+    if (startsAt >= endsAt) {
+        throw new BadRequestError(
+            "The exam start date must be before the end date"
         );
+    }
 
-        return result.rows[0] ?? null;
-    },
+    const attemptsCount =
+        await examRepository.countAttemptsForExam(id);
 
-    async create(data: CreateExamInput): Promise<Exam> {
-        const result = await pool.query<Exam>(
-            `
-            INSERT INTO exams
-                (course_id, title, description, start_at, end_at)
-            VALUES
-                ($1, $2, $3, $4, $5)
-            RETURNING ${EXAM_COLUMNS}
-            `,
-            [
-                data.courseId,
-                data.title,
-                data.description ?? null,
-                data.startsAt,
-                data.endsAt,
-            ]
+    if (attemptsCount > 0) {
+        throw new ConflictError(
+            "Cannot modify an exam that has attempts"
         );
+    }
 
-        return result.rows[0];
-    },
+    return examRepository.update(id, input);
+};
 
-    async update(
-        id: number,
-        data: UpdateExamInput
-    ): Promise<Exam | null> {
-        const result = await pool.query<Exam>(
-            `
-            UPDATE exams
-            SET
-                title = COALESCE($2, title),
-                description = COALESCE($3, description),
-                start_at = COALESCE($4, start_at),
-                end_at = COALESCE($5, end_at)
-            WHERE id = $1
-            RETURNING ${EXAM_COLUMNS}
-            `,
-            [
-                id,
-                data.title ?? null,
-                data.description ?? null,
-                data.startsAt ?? null,
-                data.endsAt ?? null,
-            ]
+export const deleteExam = async (id: number) => {
+    const exam = await examRepository.findById(id);
+
+    if (!exam) {
+        throw new NotFoundError("Exam not found");
+    }
+
+    const attemptsCount =
+        await examRepository.countAttemptsForExam(id);
+
+    if (attemptsCount > 0) {
+        throw new ConflictError(
+            "Cannot delete an exam that has attempts"
         );
+    }
 
-        return result.rows[0] ?? null;
-    },
-
-    async delete(id: number): Promise<void> {
-        await pool.query(
-            "DELETE FROM exams WHERE id = $1",
-            [id]
-        );
-    },
-
-    async countAttemptsForExam(id: number): Promise<number> {
-        const result = await pool.query<{ count: number }>(
-            `
-            SELECT COUNT(*)::int AS count
-            FROM attempts
-            WHERE exam_id = $1
-            `,
-            [id]
-        );
-
-        return Number(result.rows[0].count);
-    },
-
-    async findCurrentlyOpen(): Promise<Exam[]> {
-        const result = await pool.query<Exam>(
-            `
-            SELECT ${EXAM_COLUMNS}
-            FROM exams
-            WHERE start_at <= NOW()
-              AND end_at >= NOW()
-            ORDER BY end_at
-            `
-        );
-
-        return result.rows;
-    },
+    await examRepository.delete(id);
 };
