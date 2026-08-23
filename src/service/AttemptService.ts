@@ -54,7 +54,6 @@ export const submitAttempt = async (
         );
     }
 
-    // Vérifier qu'une question n'a pas plusieurs réponses
     const questionIds = input.answers.map(
         (answer) => answer.questionId
     );
@@ -68,11 +67,10 @@ export const submitAttempt = async (
         );
     }
 
-    // Vérifier que toutes les questions envoyées
-    // appartiennent bien à l'examen
     for (const submitted of input.answers) {
         const question = questions.find(
-            (q) => q.id === submitted.questionId
+            (question) =>
+                question.id === submitted.questionId
         );
 
         if (!question) {
@@ -95,8 +93,6 @@ export const submitAttempt = async (
                 answer.questionId === question.id
         );
 
-        // RG-05 :
-        // une question sans réponse vaut 0 point
         if (!submitted) {
             answersToStore.push({
                 questionId: question.id,
@@ -107,7 +103,8 @@ export const submitAttempt = async (
         }
 
         const choice = question.choices.find(
-            (c) => c.id === submitted.choiceId
+            (choice) =>
+                choice.id === submitted.choiceId
         );
 
         if (!choice) {
@@ -116,8 +113,6 @@ export const submitAttempt = async (
             );
         }
 
-        // RG-06 :
-        // le score est calculé uniquement côté serveur
         if (choice.isCorrect) {
             score += question.points;
         }
@@ -150,7 +145,7 @@ export const getAttemptResult = async (
         throw new NotFoundError("Attempt not found");
     }
 
-    // Un étudiant ne peut consulter que sa propre tentative
+
     if (
         requester.role === "student" &&
         attempt.studentId !== requester.id
@@ -184,7 +179,8 @@ export const getAttemptResult = async (
             maxScore += question.points;
 
             const answer = answers.find(
-                (a) => a.questionId === question.id
+                (answer) =>
+                    answer.questionId === question.id
             );
 
             const correctChoice =
@@ -224,6 +220,28 @@ export const getAttemptResult = async (
         submittedAt: attempt.submittedAt,
         corrections,
     };
+};
+
+export const getAttemptResultByExamForStudent = async (
+    examId: number,
+    studentId: number
+): Promise<AttemptResult> => {
+    const attempt =
+        await attemptRepository.findByExamAndStudent(
+            examId,
+            studentId
+        );
+
+    if (!attempt) {
+        throw new NotFoundError(
+            "You have not submitted this exam"
+        );
+    }
+
+    return getAttemptResult(attempt.id, {
+        id: studentId,
+        role: "student",
+    });
 };
 
 export const getExamResultsSummary = async (
