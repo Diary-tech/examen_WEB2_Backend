@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import * as studentService from '../service/StudentService';
 
-export async function list(req: Request, res: Response, next: NextFunction) {
+export const list = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const students = await studentService.listStudents();
     res.status(200).json(students);
   } catch (err) { next(err); }
 }
 
-export async function create(req: Request, res: Response, next: NextFunction) {
+export const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, fullName, password } = req.body;
     if (!email || !fullName || !password) {
@@ -19,7 +19,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
   } catch (err) { next(err); }
 }
 
-export async function update(req: Request, res: Response, next: NextFunction) {
+export const update = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = Number(req.params.id);
     const updated = await studentService.updateStudent(id, req.body);
@@ -27,7 +27,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
   } catch (err) { next(err); }
 }
 
-export async function desactivate(req: Request, res: Response, next: NextFunction) {
+export const desactivate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = Number(req.params.id);
     await studentService.desactivateStudent(id);
