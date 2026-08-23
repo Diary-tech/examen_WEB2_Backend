@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import * as studentService from '../Service/StudentService';
+import * as studentService from '../service/StudentService';
 
 export async function list(req: Request, res: Response, next: NextFunction) {
   try {
