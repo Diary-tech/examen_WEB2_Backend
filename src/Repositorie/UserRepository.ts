@@ -39,7 +39,6 @@ export const createUser = async (data: {
   return mapUser(result.rows[0]);
 };
 
-
 export const resetPasswordHash = async (id: number, passwordHash: string): Promise<User | null> => {
   const result = await pool.query('UPDATE users SET password_hash = $2 WHERE id = $1 RETURNING *', [
     id,
