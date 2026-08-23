@@ -25,3 +25,17 @@ export const findAllStudents = async (): Promise<User[]> => {
   const result = await pool.query("SELECT * FROM users WHERE role = 'student' ");
   return result.rows.map(mapUser);
 };
+
+
+export const createUser = async (data: {
+  email: string;
+  passwordHash: string;
+  fullName: string;
+  role: 'admin' | 'student';
+}): Promise<User> => {
+  const result = await pool.query(
+    'INSERT INTO users (email, password_hash, full_name, role, is_active) VALUES ($1, $2, $3, $4, true) RETURNING *',
+    [data.email, data.passwordHash, data.fullName, data.role]
+  );
+  return mapUser(result.rows[0]);
+};
