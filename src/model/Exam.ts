@@ -22,3 +22,9 @@ export interface UpdateExamInput {
   startsAt?: Date;
   endsAt?: Date;
 }
+
+export interface ExamWithMeta extends Exam {
+  courseName: string;
+  attemptsCount: number;
+  isLocked: boolean; 
+}
