@@ -19,3 +19,13 @@ export interface AttemptResult {
   submittedAt: Date;
   corrections: QuestionCorrection[];
 }
+
+export interface QuestionCorrection {
+  questionId: number;
+  statement: string;
+  points: number;
+  earnedPoints: number;
+  selectedChoiceId: number | null;
+  correctChoiceId: number;
+  isCorrect: boolean;
+}
