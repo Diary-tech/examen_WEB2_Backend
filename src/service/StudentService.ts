@@ -3,11 +3,11 @@ import * as userRepository from '../Repositorie/UserRepository';
 import { CreateUserInput, UpdateUserInput } from '../model/User';
 import { BadRequestError, ConflictError, NotFoundError } from '../Security/errors';
 
-export async function listStudents() {
+export const listStudents = async () => {
   return userRepository.findAllStudents(); 
-}
+};
 
-export async function createStudent(input: CreateUserInput) {
+export const createStudent = async (input: CreateUserInput) => {
   const existing = await userRepository.findByEmail(input.email);
   if (existing) {
     throw new ConflictError('An account with this email already exists');
@@ -23,7 +23,7 @@ export async function createStudent(input: CreateUserInput) {
   });
 }
 
-export async function updateStudent(id: number, input: UpdateUserInput) {
+export const updateStudent = async (id: number, input: UpdateUserInput) => {
   const student = await userRepository.findById(id);
   if (!student) throw new NotFoundError('Student not found');
 
@@ -37,7 +37,7 @@ export async function updateStudent(id: number, input: UpdateUserInput) {
   return userRepository.updateUser(id, input);
 }
 
-export async function resetPassword(id: number, newPassword: string) {
+export const resetPassword = async (id: number, newPassword: string) => {
   const student = await userRepository.findById(id);
   if (!student) throw new NotFoundError('Student not found');
   if (!newPassword || newPassword.length < 6) {
@@ -47,8 +47,8 @@ export async function resetPassword(id: number, newPassword: string) {
   return userRepository.resetPasswordHash(id, passwordHash);
 }
 
-export async function desactivateStudent(id: number) {
+export const desactivateStudent = async (id: number) => {
   const student = await userRepository.findById(id);
   if (!student) throw new NotFoundError('Student not found');
-  return userRepository.setActive(id, false);
+  return userRepository.desactivateStudent(id);
 }
