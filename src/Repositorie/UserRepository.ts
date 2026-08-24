@@ -39,11 +39,25 @@ export const createUser = async (data: {
   return mapUser(result.rows[0]);
 };
 
+export const updateUser = async (id: number,
+    data: {
+      email?: string;
+      fullName?: string;
+    }
+): Promise<User | null> => {
+  const result = await pool.query(`UPDATE users SET email = COALESCE($2, email),
+      full_name = COALESCE($3, full_name) WHERE id = $1 AND role = 'student' RETURNING * `, [
+          id,
+          data.email ?? null,
+          data.fullName ?? null]
+  );
+  return result.rows.length ? mapUser(result.rows[0]) : null;
+};
+
 export const resetPasswordHash = async (id: number, passwordHash: string): Promise<User | null> => {
-  const result = await pool.query('UPDATE users SET password_hash = $2 WHERE id = $1 RETURNING *', [
+  const result = await pool.query(`UPDATE users SET password_hash = $2 WHERE id = $1 AND role = 'student' RETURNING * `, [
     id,
-    passwordHash,
-  ]);
+    passwordHash]);
   return result.rows.length ? mapUser(result.rows[0]) : null;
 };
 
