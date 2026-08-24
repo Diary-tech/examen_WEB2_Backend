@@ -4,11 +4,58 @@ import {
     getAttemptResultByExamForStudent,
     getExamResultsSummary,
     listAttemptsForStudent,
+    listAvailableExams,
+    getAvailableExam,
 } from "../service/AttemptService";
 import {
     BadRequestError,
     UnauthorizedError,
 } from "../security/Errors";
+
+export const getMyExams = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        if (!req.user) {
+            throw new UnauthorizedError();
+        }
+
+        const exams = await listAvailableExams(req.user.id);
+
+        res.status(200).json(exams);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getMyExam = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        if (!req.user) {
+            throw new UnauthorizedError();
+        }
+
+        const examId = Number(req.params.id);
+
+        if (!Number.isInteger(examId)) {
+            throw new BadRequestError("Invalid exam id");
+        }
+
+        const exam = await getAvailableExam(
+            examId,
+            req.user.id
+        );
+
+        res.status(200).json(exam);
+    } catch (error) {
+        next(error);
+    }
+};
 
 export const submitExam = async (
     req: Request,
@@ -26,7 +73,6 @@ export const submitExam = async (
             throw new BadRequestError("Invalid exam id");
         }
 
-        // Vérifier que answers existe et est bien un tableau
         if (!Array.isArray(req.body?.answers)) {
             throw new BadRequestError(
                 "answers must be an array"
