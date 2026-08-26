@@ -41,6 +41,8 @@ import {
     getMyExamResult,
     getExamResults,
     getMyResults,
+    getMyExams,
+    getMyExam,
 } from "./controller/AttemptController";
 
 import { errorHandler } from "./security/errorHandler";
@@ -196,14 +198,14 @@ app.get(
     "/api/my/exams",
     requireAuth,
     requireRole("student"),
-    getExams
+    getMyExams
 );
 
 app.get(
     "/api/my/exams/:id",
     requireAuth,
     requireRole("student"),
-    getExamById
+    getMyExam
 );
 
 app.post(
