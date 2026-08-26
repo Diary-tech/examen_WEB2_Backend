@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as studentService from '../service/StudentService';
+import {BadRequestError} from "../security/Errors";
 
 export const list = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -63,6 +64,9 @@ export const resetPassword = async (
 ) => {
   try {
     const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new BadRequestError("Invalid student id");
+    }
     const { newPassword } = req.body;
 
     if (!newPassword) {
