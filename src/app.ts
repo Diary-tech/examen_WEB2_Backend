@@ -10,6 +10,7 @@ import {
     create,
     update,
     desactivate,
+    resetPassword,
 } from "./controller/StudentController";
 
 import {
@@ -80,6 +81,13 @@ app.delete(
     requireAuth,
     requireRole("admin"),
     desactivate
+);
+
+app.put(
+    "/api/students/:id/password",
+    requireAuth,
+    requireRole("admin"),
+    resetPassword
 );
 
 app.get(
