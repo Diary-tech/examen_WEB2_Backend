@@ -1,9 +1,9 @@
 # examen_WEB2_Backend
 
-Après que vous avez cloné ce dépôt, créez votre propre fichier .env et configurez le en prenant exemple sur le .env.example.
-Ensuite allez dans le terminal de votre machine pour créer une base de donnée dont le nom devrait être similaire au  DB_NAME de votre .env .
-Maintenant éxécutez ces commandes par suite :
-    - npm install (pour isntaller les dépendances nécesaires)
-    - psql -U votre_utilisateur -d votre_base -f ./database/schema.sql (celà va éxécutez les requêtes sql dans ce fichier dans votre base)
-    - npm run seed:admin (pour la création d'un administrateur si il n'y en a pas encore)
-    - npm run dev (pour lancer le projet)
+After cloning this repository, create your own .env file and configure it based on the .env.example file.
+Then go to your machine's terminal to create a database whose name should be similar to the DB_NAME in your .env.
+Now run the following commands in order:
+    - npm install (to install the necessary dependencies)
+    - psql -U your_username -d your_database -f ./database/schema.sql (this will execute the SQL queries in this file against your database)
+    - npm run seed:admin (to create an administrator if one doesn't exist yet)
+    - npm run dev (to launch the project)
