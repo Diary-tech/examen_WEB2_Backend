@@ -130,10 +130,6 @@ export const submitAttempt = async (
         throw new ConflictError("This exam has no questions");
     }
 
-    if (input.answers.length === 0) {
-        throw new BadRequestError("At least one answer is required");
-    }
-
     let score = 0;
 
     const answersToStore: {
