@@ -50,7 +50,7 @@ export const questionRepository = {
 
         const choices = await pool.query<Choice>(
             `
-            SELECT ${CHOICE_COLUMNS}
+            SELECT ${CHOICE_COLUMNS_JOINED}
             FROM choices c
             JOIN questions q ON q.id = c.question_id
             WHERE q.exam_id = $1
@@ -91,7 +91,7 @@ export const questionRepository = {
 
         const choices = await pool.query<Choice>(
             `
-            SELECT ${CHOICE_COLUMNS_JOINED}
+            SELECT ${CHOICE_COLUMNS}
             FROM choices
             WHERE question_id = $1
             ORDER BY position, id
