@@ -24,6 +24,14 @@ const CHOICE_COLUMNS = `
     position
 `;
 
+const CHOICE_COLUMNS_JOINED = `
+    c.id,
+    c.question_id AS "questionId",
+    c.label,
+    c.is_correct AS "isCorrect",
+    c.position
+`;
+
 export const questionRepository = {
     async findByExamId(examId: number): Promise<QuestionWithChoices[]> {
         const questions = await pool.query<Question>(
@@ -83,7 +91,7 @@ export const questionRepository = {
 
         const choices = await pool.query<Choice>(
             `
-            SELECT ${CHOICE_COLUMNS}
+            SELECT ${CHOICE_COLUMNS_JOINED}
             FROM choices
             WHERE question_id = $1
             ORDER BY position, id
