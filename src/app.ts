@@ -10,6 +10,7 @@ import {
     create,
     update,
     desactivate,
+    activate,
     resetPassword,
 } from "./controller/studentController";
 
@@ -74,6 +75,13 @@ app.put(
     requireAuth,
     requireRole("admin"),
     update
+);
+
+app.put(
+    "/api/students/:id/activate",
+    requireAuth,
+    requireRole("admin"),
+    activate
 );
 
 app.delete(
