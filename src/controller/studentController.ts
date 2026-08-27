@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import * as studentService from '../service/StudentService';
-import {BadRequestError} from "../security/Errors";
+import * as studentService from '../service/studentService';
+import {BadRequestError} from "../security/errors";
 
 export const list = async (req: Request, res: Response, next: NextFunction) => {
   try {

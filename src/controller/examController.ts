@@ -6,7 +6,7 @@ import {
     updateExam,
     deleteExam,
 } from "../service/examService";
-import { BadRequestError } from "../security/Errors";
+import { BadRequestError } from "../security/errors";
 
 export const getExams = async (
     req: Request,

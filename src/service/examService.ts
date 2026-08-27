@@ -3,12 +3,12 @@ import { courseRepository } from "../Repositorie/courseRepository";
 import {
     CreateExamInput,
     UpdateExamInput,
-} from "../model/Exam";
+} from "../model/exam";
 import {
     BadRequestError,
     ConflictError,
     NotFoundError,
-} from "../security/Errors";
+} from "../security/errors";
 
 export const listExams = async () => {
     return examRepository.findAll();

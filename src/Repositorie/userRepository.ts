@@ -1,5 +1,5 @@
-import { pool } from '../config/Database';
-import { User } from '../model/User';
+import { pool } from '../config/database';
+import { User } from '../model/user';
 
 const mapUser = (row: any): User => ({
   id: row.id,

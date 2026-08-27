@@ -1,9 +1,9 @@
-import { pool } from "../config/Database";
+import { pool } from "../config/database";
 import {
     Course,
     CreateCourseInput,
     UpdateCourseInput,
-} from "../model/Course";
+} from "../model/course";
 
 const COURSE_COLUMNS = `
   id,

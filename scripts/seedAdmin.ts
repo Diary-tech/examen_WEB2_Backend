@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
-import { pool } from '../src/config/Database';
+import { pool } from '../src/config/database';
 
 const seedAdmin = async () => {
   const email = process.env.ADMIN_INITIAL_EMAIL || 'admin@examhub.local';

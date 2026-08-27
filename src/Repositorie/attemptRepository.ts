@@ -1,10 +1,10 @@
-import { pool } from "../config/Database";
-import { Answer } from "../model/Answer";
+import { pool } from "../config/database";
+import { Answer } from "../model/answer";
 import {
     Attempt,
     ExamResultRow,
     ExamResultsSummary,
-} from "../model/Attempt";
+} from "../model/attempt";
 
 const ATTEMPT_COLUMNS = `
   id,
