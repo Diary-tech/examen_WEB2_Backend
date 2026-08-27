@@ -6,13 +6,13 @@ import {
     ExamResultsSummary,
     QuestionCorrection,
     SubmitAttemptInput,
-} from "../model/Attempt";
+} from "../model/attempt";
 import {
     BadRequestError,
     ConflictError,
     ForbiddenError,
     NotFoundError,
-} from "../security/Errors";
+} from "../security/errors";
 
 export const listAvailableExams = async (studentId: number) => {
     const exams = await examRepository.findAll();

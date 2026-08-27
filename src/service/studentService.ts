@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
-import * as userRepository from '../Repositorie/UserRepository';
-import { CreateUserInput, UpdateUserInput } from '../model/User';
-import { BadRequestError, ConflictError, NotFoundError } from '../security/Errors';
+import * as userRepository from '../Repositorie/userRepository';
+import { CreateUserInput, UpdateUserInput } from '../model/user';
+import { BadRequestError, ConflictError, NotFoundError } from '../security/errors';
 
 export const listStudents = async () => {
   return userRepository.findAllStudents(); 

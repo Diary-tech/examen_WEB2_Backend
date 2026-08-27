@@ -6,11 +6,11 @@ import {
     listAttemptsForStudent,
     listAvailableExams,
     getAvailableExam,
-} from "../service/AttemptService";
+} from "../service/attemptService";
 import {
     BadRequestError,
     UnauthorizedError,
-} from "../security/Errors";
+} from "../security/errors";
 
 export const getMyExams = async (
     req: Request,

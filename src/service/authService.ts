@@ -1,10 +1,10 @@
-import * as userRepository from "../Repositorie/UserRepository";
+import * as userRepository from "../Repositorie/userRepository";
 import { comparePassword } from "../security/hash";
 import { signToken } from "../security/jwt";
 import {
     UnauthorizedError,
     ForbiddenError,
-} from "../security/Errors";
+} from "../security/errors";
 
 export const authService = {
     async login(email: string, password: string) {

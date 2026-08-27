@@ -2,11 +2,11 @@ import { courseRepository } from "../Repositorie/courseRepository";
 import {
     CreateCourseInput,
     UpdateCourseInput,
-} from "../model/Course";
+} from "../model/course";
 import {
     ConflictError,
     NotFoundError,
-} from "../security/Errors";
+} from "../security/errors";
 
 export const listCourses = async () => {
     return courseRepository.findAll();

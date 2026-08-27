@@ -1,11 +1,11 @@
-import { pool } from "../config/Database";
-import { Choice } from "../model/Choice";
+import { pool } from "../config/database";
+import { Choice } from "../model/choice";
 import {
     CreateQuestionInput,
     Question,
     QuestionWithChoices,
     UpdateQuestionInput,
-} from "../model/Question";
+} from "../model/question";
 
 const QUESTION_COLUMNS = `
     id,
