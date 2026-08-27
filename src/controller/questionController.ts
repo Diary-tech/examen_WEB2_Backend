@@ -6,7 +6,7 @@ import {
     updateQuestion,
     deleteQuestion,
 } from "../service/questionService";
-import { BadRequestError } from "../security/Errors";
+import { BadRequestError } from "../security/errors";
 
 export const getQuestions = async (
     req: Request,

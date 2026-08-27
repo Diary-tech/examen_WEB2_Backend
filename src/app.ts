@@ -3,7 +3,7 @@ import cors from "cors";
 
 import { requireAuth, requireRole } from "./security/authMiddleware";
 
-import { loginUser } from "./controller/AuthController";
+import { loginUser } from "./controller/authController";
 
 import {
     list,
@@ -11,7 +11,7 @@ import {
     update,
     desactivate,
     resetPassword,
-} from "./controller/StudentController";
+} from "./controller/studentController";
 
 import {
     getCourses,
@@ -19,7 +19,7 @@ import {
     createNewCourse,
     updateCourseById,
     deleteCourseById,
-} from "./controller/CourseController";
+} from "./controller/courseController";
 
 import {
     getExams,
@@ -27,7 +27,7 @@ import {
     createNewExam,
     updateExamById,
     deleteExamById,
-} from "./controller/ExamController";
+} from "./controller/examController";
 
 import {
     getQuestions,
@@ -35,7 +35,7 @@ import {
     createQuestionForExam,
     updateQuestionById,
     deleteQuestionById,
-} from "./controller/QuestionController";
+} from "./controller/questionController";
 
 import {
     submitExam,
@@ -44,7 +44,7 @@ import {
     getMyResults,
     getMyExams,
     getMyExam,
-} from "./controller/AttemptController";
+} from "./controller/attemptController";
 
 import { errorHandler } from "./security/errorHandler";
 

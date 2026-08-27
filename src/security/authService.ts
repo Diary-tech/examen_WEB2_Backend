@@ -1,7 +1,7 @@
-import * as userRepository from '../Repositorie/UserRepository';
+import * as userRepository from '../Repositorie/userRepository';
 import { comparePassword } from '../security/hash';
 import { signToken } from '../security/jwt';
-import { UnauthorizedError, ForbiddenError } from '../security/Errors';
+import { UnauthorizedError, ForbiddenError } from './errors';
 
 export const login = async (email: string, password: string) => {
   const user = await userRepository.findByEmail(email);

@@ -1,4 +1,4 @@
-import { Choice, CreateChoiceInput, ChoiceForStudent } from './Choice';
+import { Choice, CreateChoiceInput, ChoiceForStudent } from './choice';
 
 export interface Question {
   id: number;

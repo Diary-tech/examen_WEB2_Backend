@@ -3,12 +3,12 @@ import { examRepository } from "../Repositorie/examRepository";
 import {
     CreateQuestionInput,
     UpdateQuestionInput,
-} from "../model/Question";
+} from "../model/question";
 import {
     BadRequestError,
     ConflictError,
     NotFoundError,
-} from "../security/Errors";
+} from "../security/errors";
 
 const validateChoices = (
     choices: CreateQuestionInput["choices"]

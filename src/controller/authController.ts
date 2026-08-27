@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { authService } from "../service/authService";
-import { BadRequestError } from "../security/Errors";
+import { BadRequestError } from "../security/errors";
 
 export const loginUser = async (
     req: Request,
