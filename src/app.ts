@@ -48,9 +48,10 @@ import {
 } from "./controller/attemptController";
 
 import { errorHandler } from "./security/errorHandler";
+import { snakeCaseResponseMiddleware } from "./security/snakeCaseMiddleware";
 
 const app = express();
-
+app.use(snakeCaseResponseMiddleware);
 app.use(cors());
 app.use(express.json());
 

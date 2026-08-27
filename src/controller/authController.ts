@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { authService } from "../service/authService";
 import { BadRequestError } from "../security/errors";
+import { toSnakeCaseKeys } from "../security/caseConverter";
 
 export const loginUser = async (
     req: Request,
@@ -40,7 +41,7 @@ export const loginUser = async (
             password
         );
 
-        res.status(200).json(result);
+        res.status(200).json(toSnakeCaseKeys(result));
     } catch (error) {
         next(error);
     }

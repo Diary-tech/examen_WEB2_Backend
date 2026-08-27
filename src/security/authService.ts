@@ -10,16 +10,16 @@ export const login = async (email: string, password: string) => {
   }
 
   if (!user.isActive) {
-    throw new ForbiddenError('This account has been deactivated'); 
+    throw new ForbiddenError('This account has been deactivated');
   }
 
-  const valid = await comparePassword(password, user.passwordHash);
+  const valid = await comparePassword(password, user.password);
   if (!valid) {
     throw new UnauthorizedError('Email or password incorrect');
   }
 
   const token = signToken({ id: user.id, role: user.role });
 
-  const { passwordHash, ...publicUser } = user;
+  const { password: _password, ...publicUser } = user;
   return { token, user: publicUser };
 };
