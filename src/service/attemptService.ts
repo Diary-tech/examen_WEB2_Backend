@@ -171,11 +171,16 @@ export const submitAttempt = async (
         });
     }
 
-    return attemptRepository.createAttemptWithAnswers({
+    const attempt = await attemptRepository.createAttemptWithAnswers({
         examId,
         studentId,
         score,
         answers: answersToStore,
+    });
+
+    return getAttemptResult(attempt.id, {
+        id: studentId,
+        role: "student"
     });
 };
 
