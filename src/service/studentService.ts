@@ -52,3 +52,9 @@ export const desactivateStudent = async (id: number) => {
   if (!student) throw new NotFoundError('Student not found');
   return userRepository.desactivateStudent(id);
 }
+
+export const activateStudent = async (id: number) => {
+  const student = await userRepository.findById(id);
+  if (!student) throw new NotFoundError('Student not found');
+  return userRepository.activateStudent(id);
+}

@@ -68,3 +68,11 @@ export const desactivateStudent = async (id: number): Promise<User | null> => {
   );
   return result.rows.length ? mapUser(result.rows[0]) : null;
 };
+
+export const activateStudent = async (id: number): Promise<User | null> => {
+  const result = await pool.query(
+    "UPDATE users SET is_active = true WHERE id = $1 AND role = 'student' RETURNING *",
+    [id]
+  );
+  return result.rows.length ? mapUser(result.rows[0]) : null;
+};

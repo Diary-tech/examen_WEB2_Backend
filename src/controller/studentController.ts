@@ -57,6 +57,20 @@ export const desactivate = async (
   }
 };
 
+export const activate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+  try {
+    const id = Number(req.params.id);
+    await studentService.activateStudent(id);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const resetPassword = async (
     req: Request,
     res: Response,
