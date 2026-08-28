@@ -37,7 +37,7 @@ const EXAM_LIST_COLUMNS = `
 `;
 export const examRepository = {
     async findAll(): Promise<ExamWithCourse[]> {
-        const result = await pool.query<ExamWithCourse>(`
+    const result = await pool.query<ExamWithCourse>(`
         SELECT ${EXAM_LIST_COLUMNS}
 
         FROM exams e
@@ -70,13 +70,14 @@ export const examRepository = {
             e.created_at,
             c.id,
             c.code,
-            c.name
+            c.name,
+            q_points.total_points
 
         ORDER BY e.start_at DESC
     `);
 
-        return result.rows;
-    },
+    return result.rows;
+},
     async findAllWithMeta(): Promise<ExamWithMeta[]> {
         const result = await pool.query(`
         SELECT
