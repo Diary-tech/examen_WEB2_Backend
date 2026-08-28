@@ -264,4 +264,16 @@ export const questionRepository = {
             [id]
         );
     },
+
+    async sumPointsForExam(examId: number): Promise<number> {
+        const result = await pool.query<{ total: number }>(
+            `
+        SELECT COALESCE(SUM(points), 0)::int AS total
+        FROM questions
+        WHERE exam_id = $1
+        `,
+            [examId]
+        );
+        return Number(result.rows[0].total);
+    },
 };

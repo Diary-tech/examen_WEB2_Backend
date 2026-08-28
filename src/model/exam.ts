@@ -24,7 +24,10 @@ export interface UpdateExamInput {
 }
 
 export interface ExamWithMeta extends Exam {
+  courseCode: string;
   courseName: string;
   attemptsCount: number;
-  isLocked: boolean; 
+  questionCount: number;
+  totalPoints: number;
+  isLocked: boolean;
 }

@@ -15,9 +15,8 @@ import {
 } from "../security/errors";
 
 export const listAvailableExams = async (studentId: number) => {
-    const exams = await examRepository.findAll();
+    const exams = await examRepository.findAllWithMeta();
     const now = new Date();
-
     const availableExams = [];
 
     for (const exam of exams) {
@@ -289,7 +288,7 @@ export const getAttemptResult = async (
 
 export const getExamResultsSummary = async (
     examId: number
-): Promise<any> => {
+): Promise<ExamResultsSummary> => {
     const exam = await examRepository.findById(examId);
 
     if (!exam) {
@@ -309,28 +308,15 @@ export const getExamResultsSummary = async (
 
     const average =
         rows.length === 0
-            ? null
-            : Math.round(
-                  (rows.reduce((sum, row) => sum + row.score, 0) /
-                      rows.length) *
-                      100
-              ) / 100;
+            ? 0
+            : rows.reduce((sum, row) => sum + row.score, 0) / rows.length;
 
     return {
-        exam: {
-            id: exam.id,
-            title: exam.title,
-            total_points: totalPoints,
-        },
-        total_points: totalPoints,
-        attempt_count: rows.length,
+        examTitle: exam.title,
+        totalPoints,
+        rows,
         average,
-        results: rows.map((row) => ({
-            student_id: row.studentId,
-            name: row.studentName,
-            score: row.score,
-            submitted_at: row.submittedAt,
-        })),
+        attemptsCount: rows.length,
     };
 };
 

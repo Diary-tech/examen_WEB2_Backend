@@ -1,6 +1,7 @@
 import { pool } from "../config/database";
 import {
     Exam,
+    ExamWithMeta,
     CreateExamInput,
     UpdateExamInput,
 } from "../model/exam";
@@ -28,7 +29,7 @@ const EXAM_LIST_COLUMNS = `
 `;
 export const examRepository = {
     async findAll(): Promise<Exam[]> {
-    const result = await pool.query<Exam>(`
+        const result = await pool.query<Exam>(`
         SELECT ${EXAM_LIST_COLUMNS}
         FROM exams e
 
@@ -49,9 +50,46 @@ export const examRepository = {
 
         ORDER BY e.start_at DESC
     `);
+        return result.rows;
+    },
 
-    return result.rows;
-},
+    async findAllWithMeta(): Promise<ExamWithMeta[]> {
+        const result = await pool.query(
+            `
+        SELECT
+            e.id,
+            e.course_id AS "courseId",
+            e.title,
+            e.description,
+            e.start_at AS "startsAt",
+            e.end_at AS "endsAt",
+            e.created_at AS "createdAt",
+            c.code AS "courseCode",
+            c.name AS "courseName",
+            COALESCE(att.attempt_count, 0) AS "attemptsCount",
+            COALESCE(q.question_count, 0) AS "questionCount",
+            COALESCE(q.total_points, 0) AS "totalPoints"
+        FROM exams e
+        JOIN courses c ON c.id = e.course_id
+        LEFT JOIN (
+            SELECT exam_id, COUNT(*)::int AS attempt_count
+            FROM attempts
+            GROUP BY exam_id
+        ) att ON att.exam_id = e.id
+        LEFT JOIN (
+            SELECT exam_id, COUNT(*)::int AS question_count, COALESCE(SUM(points), 0)::int AS total_points
+            FROM questions
+            GROUP BY exam_id
+        ) q ON q.exam_id = e.id
+        ORDER BY e.start_at DESC
+        `
+        );
+
+        return result.rows.map((row: any) => ({
+            ...row,
+            isLocked: row.attemptsCount > 0,
+        }));
+    },
 
     async findById(id: number): Promise<Exam | null> {
         const result = await pool.query<Exam>(
