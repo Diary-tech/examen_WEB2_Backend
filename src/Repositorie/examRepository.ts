@@ -24,14 +24,24 @@ const EXAM_LIST_COLUMNS = `
     e.end_at AS "endsAt",
     e.created_at AS "createdAt",
 
+    json_build_object(
+        'id', c.id,
+        'code', c.code,
+        'name', c.name
+    ) AS course,
+
     COUNT(DISTINCT q.id)::int AS question_count,
     COUNT(DISTINCT a.id)::int AS attempt_count
 `;
 export const examRepository = {
-    async findAll(): Promise<Exam[]> {
-        const result = await pool.query<Exam>(`
+    async findAll(): Promise<ExamWithCourse[]> {
+    const result = await pool.query<ExamWithCourse>(`
         SELECT ${EXAM_LIST_COLUMNS}
+
         FROM exams e
+
+        LEFT JOIN courses c
+            ON c.id = e.course_id
 
         LEFT JOIN questions q
             ON q.exam_id = e.id
@@ -46,13 +56,16 @@ export const examRepository = {
             e.description,
             e.start_at,
             e.end_at,
-            e.created_at
+            e.created_at,
+            c.id,
+            c.code,
+            c.name
 
         ORDER BY e.start_at DESC
     `);
 
-        return result.rows;
-    },
+    return result.rows;
+},
 
     async findById(id: number): Promise<Exam | null> {
         const result = await pool.query<Exam>(
