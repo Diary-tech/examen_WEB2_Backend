@@ -50,16 +50,14 @@ export const createNewExam = async (
             throw new BadRequestError("Request body is required");
         }
 
-        const {
-            courseId,
-            title,
-            description,
-            startsAt,
-            endsAt,
-        } = req.body;
+        const courseId = req.body.course_id ?? req.body.courseId;
+        const title = req.body.title;
+        const description = req.body.description;
+        const startsAt = req.body.starts_at ?? req.body.startsAt;
+        const endsAt = req.body.ends_at ?? req.body.endsAt;
 
         if (!Number.isInteger(courseId)) {
-            throw new BadRequestError("courseId must be an integer");
+            throw new BadRequestError("course_id must be an integer");
         }
 
         if (typeof title !== "string" || title.trim() === "") {
@@ -73,18 +71,12 @@ export const createNewExam = async (
             throw new BadRequestError("description must be a string");
         }
 
-        if (
-            typeof startsAt !== "string" ||
-            startsAt.trim() === ""
-        ) {
-            throw new BadRequestError("startsAt is required");
+        if (typeof startsAt !== "string" || startsAt.trim() === "") {
+            throw new BadRequestError("starts_at is required");
         }
 
-        if (
-            typeof endsAt !== "string" ||
-            endsAt.trim() === ""
-        ) {
-            throw new BadRequestError("endsAt is required");
+        if (typeof endsAt !== "string" || endsAt.trim() === "") {
+            throw new BadRequestError("ends_at is required");
         }
 
         const startDate = new Date(startsAt);

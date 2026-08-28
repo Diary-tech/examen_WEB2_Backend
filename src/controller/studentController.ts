@@ -15,11 +15,12 @@ export const list = async (req: Request, res: Response, next: NextFunction) => {
 
 export const create = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { email, fullName, password } = req.body;
-    if (!email || !fullName || !password) {
-      return res
-        .status(400)
-        .json({ message: 'Email, name and password are required' });
+    const email = req.body.email;
+    const name = req.body.name ?? req.body.fullName;   // accepte name ou fullName
+    const password = req.body.password;
+
+    if (!email || !name || !password) {
+      return res.status(400).json({ message: 'Email, name and password are required' });
     }
     if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
       return res.status(400).json({ message: 'Invalid email format' });
@@ -28,10 +29,9 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
       return res.status(400).json({ message: 'Password must be at least 6 characters' });
     }
 
-
     const student = await studentService.createStudent({
       email: email.trim(),
-      name: fullName.trim(),
+      name: name.trim(),
       password,
     });
 
