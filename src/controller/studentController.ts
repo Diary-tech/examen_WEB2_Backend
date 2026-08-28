@@ -31,7 +31,7 @@ export const create = async (req: Request, res: Response, next: NextFunction) =>
 
     const student = await studentService.createStudent({
       email: email.trim(),
-      fullName,
+      name: fullName.trim(),
       password,
     });
 

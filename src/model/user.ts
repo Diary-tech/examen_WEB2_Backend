@@ -3,8 +3,8 @@ export type Role = 'admin' | 'student';
 export interface User {
   id: number;
   email: string;
-  passwordHash: string;
-  fullName: string;
+  password: string;
+  name: string;
   role: Role;
   isActive: boolean;
   createdAt: Date;
@@ -12,11 +12,11 @@ export interface User {
 
 export interface CreateUserInput {
   email: string;
-  fullName: string;
-  password: string; 
+  name: string;
+  password: string;
 }
 
 export interface UpdateUserInput {
   email?: string;
-  fullName?: string;
+  name?: string;
 }

@@ -24,7 +24,7 @@ export const authService = {
 
         const valid = await comparePassword(
             password,
-            user.passwordHash
+            user.password
         );
 
         if (!valid) {
@@ -38,7 +38,7 @@ export const authService = {
             role: user.role,
         });
 
-        const { passwordHash, ...publicUser } = user;
+        const { password: _password, ...publicUser } = user;
 
         return {
             token,
