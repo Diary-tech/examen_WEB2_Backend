@@ -32,7 +32,8 @@ const EXAM_LIST_COLUMNS = `
     ) AS course,
 
     COUNT(DISTINCT q.id)::int AS question_count,
-    COUNT(DISTINCT a.id)::int AS attempt_count
+    COUNT(DISTINCT a.id)::int AS attempt_count,
+    COALESCE(q_points.total_points, 0)::int AS total_points
 `;
 export const examRepository = {
     async findAll(): Promise<ExamWithCourse[]> {
@@ -49,6 +50,15 @@ export const examRepository = {
 
         LEFT JOIN attempts a
             ON a.exam_id = e.id
+
+        LEFT JOIN (
+            SELECT
+                exam_id,
+                SUM(points)::int AS total_points
+            FROM questions
+            GROUP BY exam_id
+        ) q_points
+            ON q_points.exam_id = e.id
 
         GROUP BY
             e.id,
@@ -84,7 +94,8 @@ export const examRepository = {
                 'name', c.name
             ) AS course,
 
-            COUNT(DISTINCT a.id)::int AS "attemptsCount"
+            COUNT(DISTINCT a.id)::int AS "attemptsCount",
+            COALESCE(q_points.total_points, 0)::int AS total_points
 
         FROM exams e
 
@@ -93,6 +104,15 @@ export const examRepository = {
 
         LEFT JOIN attempts a
             ON a.exam_id = e.id
+
+        LEFT JOIN (
+            SELECT
+                exam_id,
+                SUM(points)::int AS total_points
+            FROM questions
+            GROUP BY exam_id
+        ) q_points
+            ON q_points.exam_id = e.id
 
         GROUP BY
             e.id,
@@ -104,7 +124,8 @@ export const examRepository = {
             e.created_at,
             c.id,
             c.code,
-            c.name
+            c.name,
+            q_points.total_points
 
         ORDER BY e.start_at DESC
     `);
