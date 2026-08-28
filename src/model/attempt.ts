@@ -38,9 +38,12 @@ export interface ExamResultRow {
 }
 
 export interface ExamResultsSummary {
-  examTitle: string;
+  exam: {
+    id: number;
+    title: string;
+  };
   totalPoints: number;
-  rows: ExamResultRow[];
-  average: number;
-  attemptsCount: number;
+  attemptCount: number;
+  average: number | null;   
+  results: ExamResultRow[];
 }
