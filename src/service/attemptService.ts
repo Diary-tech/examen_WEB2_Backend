@@ -289,7 +289,7 @@ export const getAttemptResult = async (
 
 export const getExamResultsSummary = async (
     examId: number
-): Promise<ExamResultsSummary> => {
+): Promise<any> => {
     const exam = await examRepository.findById(examId);
 
     if (!exam) {
@@ -299,18 +299,38 @@ export const getExamResultsSummary = async (
     const rows =
         await attemptRepository.listForExamWithStudent(examId);
 
+    const questions =
+        await questionRepository.findByExamId(examId);
+
+    const totalPoints = questions.reduce(
+        (sum, q) => sum + q.points,
+        0
+    );
+
     const average =
         rows.length === 0
-            ? 0
-            : rows.reduce(
-            (sum, row) => sum + row.score,
-            0
-        ) / rows.length;
+            ? null
+            : Math.round(
+                  (rows.reduce((sum, row) => sum + row.score, 0) /
+                      rows.length) *
+                      100
+              ) / 100;
 
     return {
-        rows,
+        exam: {
+            id: exam.id,
+            title: exam.title,
+            total_points: totalPoints,
+        },
+        total_points: totalPoints,
+        attempt_count: rows.length,
         average,
-        attemptsCount: rows.length,
+        results: rows.map((row) => ({
+            student_id: row.studentId,
+            name: row.studentName,
+            score: row.score,
+            submitted_at: row.submittedAt,
+        })),
     };
 };
 

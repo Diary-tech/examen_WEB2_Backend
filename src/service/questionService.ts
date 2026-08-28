@@ -20,7 +20,7 @@ const validateChoices = (
     }
 
     const correctChoices = choices.filter(
-        (choice) => choice.isCorrect
+        (choice) => choice.isCorrect === true || (choice as any).is_correct === true
     );
 
     if (correctChoices.length !== 1) {
@@ -78,9 +78,18 @@ export const createQuestion = async (
         );
     }
 
+    const normalizedInput = {
+        ...input,
+        choices: input.choices.map((c: any) => ({
+            label: c.label ?? c.text,
+            isCorrect: c.isCorrect ?? c.is_correct,
+            position: c.position,
+        })),
+    };
+
     return questionRepository.createWithChoices(
         examId,
-        input
+        normalizedInput
     );
 };
 
@@ -107,7 +116,14 @@ export const updateQuestion = async (
     }
 
     if (input.choices) {
-        validateChoices(input.choices);
+        input = {
+            ...input,
+            choices: input.choices.map((c: any) => ({
+                label: c.label ?? c.text,
+                isCorrect: c.isCorrect ?? c.is_correct,
+                position: c.position,
+            })),
+        };
     }
 
     if (input.points !== undefined && input.points <= 0) {
