@@ -2,6 +2,7 @@ import { pool } from "../config/database";
 import {
     Exam,
     ExamWithMeta,
+    ExamWithCourse,
     CreateExamInput,
     UpdateExamInput,
 } from "../model/exam";
@@ -15,41 +16,17 @@ const EXAM_COLUMNS = `
   end_at AS "endsAt",
   created_at AS "createdAt"
 `;
-const EXAM_LIST_COLUMNS = `
-    e.id,
-    e.course_id AS "courseId",
-    e.title,
-    e.description,
-    e.start_at AS "startsAt",
-    e.end_at AS "endsAt",
-    e.created_at AS "createdAt",
 
-    COUNT(DISTINCT q.id)::int AS question_count,
-    COUNT(DISTINCT a.id)::int AS attempt_count
-`;
 export const examRepository = {
     async findAll(): Promise<Exam[]> {
-        const result = await pool.query<Exam>(`
-        SELECT ${EXAM_LIST_COLUMNS}
-        FROM exams e
+        const result = await pool.query<Exam>(
+            `
+            SELECT ${EXAM_COLUMNS}
+            FROM exams
+            ORDER BY start_at DESC
+            `
+        );
 
-        LEFT JOIN questions q
-            ON q.exam_id = e.id
-
-        LEFT JOIN attempts a
-            ON a.exam_id = e.id
-
-        GROUP BY
-            e.id,
-            e.course_id,
-            e.title,
-            e.description,
-            e.start_at,
-            e.end_at,
-            e.created_at
-
-        ORDER BY e.start_at DESC
-    `);
         return result.rows;
     },
 
@@ -98,6 +75,40 @@ export const examRepository = {
             FROM exams
             WHERE id = $1
             `,
+            [id]
+        );
+
+        return result.rows[0] ?? null;
+    },
+
+    async findByIdWithCourse(
+        id: number
+    ): Promise<ExamWithCourse | null> {
+
+        const result = await pool.query<ExamWithCourse>(
+            `
+        SELECT
+            e.id,
+            e.course_id AS "courseId",
+            e.title,
+            e.description,
+            e.start_at AS "startsAt",
+            e.end_at AS "endsAt",
+            e.created_at AS "createdAt",
+
+            json_build_object(
+                'id', c.id,
+                'code', c.code,
+                'name', c.name
+            ) AS course
+
+        FROM exams e
+
+        INNER JOIN courses c
+            ON c.id = e.course_id
+
+        WHERE e.id = $1
+        `,
             [id]
         );
 

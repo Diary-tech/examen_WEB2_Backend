@@ -114,6 +114,17 @@ export const questionRepository = {
         try {
             await client.query("BEGIN");
 
+            const positionResult = await client.query<{ position: number }>(
+                `
+                SELECT COALESCE(MAX(position), 0) + 1 AS position
+                FROM questions
+                WHERE exam_id = $1
+                `,
+                [examId]
+            );
+
+            const position = positionResult.rows[0].position;
+
             const questionResult = await client.query<Question>(
                 `
                 INSERT INTO questions
@@ -126,7 +137,7 @@ export const questionRepository = {
                     examId,
                     data.statement,
                     data.points,
-                    data.position ?? 0,
+                    position,
                 ]
             );
 

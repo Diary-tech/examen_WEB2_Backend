@@ -43,7 +43,7 @@ export const getAvailableExam = async (
     examId: number,
     studentId: number
 ) => {
-    const exam = await examRepository.findById(examId);
+    const exam = await examRepository.findByIdWithCourse(examId);
 
     if (!exam) {
         throw new NotFoundError("Exam not found");
