@@ -14,19 +14,44 @@ const EXAM_COLUMNS = `
   end_at AS "endsAt",
   created_at AS "createdAt"
 `;
+const EXAM_LIST_COLUMNS = `
+    e.id,
+    e.course_id AS "courseId",
+    e.title,
+    e.description,
+    e.start_at AS "startsAt",
+    e.end_at AS "endsAt",
+    e.created_at AS "createdAt",
 
+    COUNT(DISTINCT q.id)::int AS question_count,
+    COUNT(DISTINCT a.id)::int AS attempt_count
+`;
 export const examRepository = {
     async findAll(): Promise<Exam[]> {
-        const result = await pool.query<Exam>(
-            `
-            SELECT ${EXAM_COLUMNS}
-            FROM exams
-            ORDER BY start_at DESC
-            `
-        );
+    const result = await pool.query<Exam>(`
+        SELECT ${EXAM_LIST_COLUMNS}
+        FROM exams e
 
-        return result.rows;
-    },
+        LEFT JOIN questions q
+            ON q.exam_id = e.id
+
+        LEFT JOIN attempts a
+            ON a.exam_id = e.id
+
+        GROUP BY
+            e.id,
+            e.course_id,
+            e.title,
+            e.description,
+            e.start_at,
+            e.end_at,
+            e.created_at
+
+        ORDER BY e.start_at DESC
+    `);
+
+    return result.rows;
+},
 
     async findById(id: number): Promise<Exam | null> {
         const result = await pool.query<Exam>(
