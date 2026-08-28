@@ -10,6 +10,15 @@ export interface User {
   createdAt: Date;
 }
 
+export interface UserWithoutPassword {
+  id: number;
+  email: string;
+  name: string;
+  role: Role;
+  isActive: boolean;
+  createdAt: Date;
+}
+
 export interface CreateUserInput {
   email: string;
   name: string;
