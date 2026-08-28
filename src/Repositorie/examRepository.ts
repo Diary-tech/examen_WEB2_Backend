@@ -1,6 +1,7 @@
 import { pool } from "../config/database";
 import {
     Exam,
+    ExamWithMeta,
     ExamWithCourse,
     CreateExamInput,
     UpdateExamInput,
@@ -46,12 +47,15 @@ export const examRepository = {
         LEFT JOIN questions q
             ON q.exam_id = e.id
 
-        LEFT JOIN attempts a
-            ON a.exam_id = e.id
+        return result.rows;
+    },
 
-        GROUP BY
+    async findAllWithMeta(): Promise<ExamWithMeta[]> {
+        const result = await pool.query(
+            `
+        SELECT
             e.id,
-            e.course_id,
+            e.course_id AS "courseId",
             e.title,
             e.description,
             e.start_at,
@@ -62,9 +66,13 @@ export const examRepository = {
             c.name
 
         ORDER BY e.start_at DESC
-    `);
+        `
+        );
 
-        return result.rows;
+        return result.rows.map((row: any) => ({
+            ...row,
+            isLocked: row.attemptsCount > 0,
+        }));
     },
 
     async findById(id: number): Promise<Exam | null> {
@@ -79,6 +87,7 @@ export const examRepository = {
 
         return result.rows[0] ?? null;
     },
+
     async findByIdWithCourse(
         id: number
     ): Promise<ExamWithCourse | null> {
@@ -112,6 +121,7 @@ export const examRepository = {
 
         return result.rows[0] ?? null;
     },
+
     async create(data: CreateExamInput): Promise<Exam> {
         const result = await pool.query<Exam>(
             `

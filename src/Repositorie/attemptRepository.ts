@@ -103,6 +103,7 @@ export const attemptRepository = {
             courseCode: string;
             score: number;
             submittedAt: Date;
+            totalPoints: number;
         }>(
             `
       SELECT
@@ -112,11 +113,15 @@ export const attemptRepository = {
         c.code AS "courseCode",
         a.score,
         a.submitted_at AS "submittedAt"
+        COALESCE(q.total_points, 0) AS "totalPoints"
       FROM attempts a
-      JOIN exams e
-        ON e.id = a.exam_id
-      JOIN courses c
-        ON c.id = e.course_id
+      JOIN exams e ON e.id = a.exam_id
+      JOIN courses c ON c.id = e.course_id
+      LEFT JOIN (
+        SELECT exam_id, COALESCE(SUM(points), 0)::int AS total_points
+        FROM questions
+        GROUP BY exam_id
+      ) q ON q.exam_id = e.id
       WHERE a.student_id = $1
       ORDER BY a.submitted_at DESC
       `,

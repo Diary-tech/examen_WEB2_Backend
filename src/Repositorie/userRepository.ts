@@ -4,8 +4,8 @@ import { User, UserWithoutPassword } from '../model/user';
 const mapUser = (row: any): User => ({
   id: row.id,
   email: row.email,
-  password: row.password_hash,
-  name: row.full_name,
+  password: row.password,
+  name: row.name,
   role: row.role,
   isActive: row.is_active,
   createdAt: row.created_at,
@@ -14,7 +14,7 @@ const mapUser = (row: any): User => ({
 const mapUserWithoutPassword = (row: any): UserWithoutPassword => ({
   id: row.id,
   email: row.email,
-  name: row.full_name,
+  name: row.name,
   role: row.role,
   isActive: row.is_active,
   createdAt: row.created_at,
@@ -42,29 +42,29 @@ export const createUser = async (data: {
   role: 'admin' | 'student';
 }): Promise<UserWithoutPassword> => {
   const result = await pool.query(
-    'INSERT INTO users (email, password_hash, full_name, role, is_active) VALUES ($1, $2, $3, $4, true) RETURNING *',
+    'INSERT INTO users (email, password, name, role, is_active) VALUES ($1, $2, $3, $4, true) RETURNING *',
     [data.email, data.password, data.name, data.role]
   );
   return mapUserWithoutPassword(result.rows[0]);
 };
 
 export const updateUser = async (id: number,
-    data: {
-      email?: string;
-      name?: string;
-    }
+  data: {
+    email?: string;
+    name?: string;
+  }
 ): Promise<UserWithoutPassword | null> => {
   const result = await pool.query(`UPDATE users SET email = COALESCE($2, email),
-      full_name = COALESCE($3, full_name) WHERE id = $1 AND role = 'student' RETURNING * `, [
-          id,
-          data.email ?? null,
-          data.name ?? null]
+      name = COALESCE($3, name) WHERE id = $1 AND role = 'student' RETURNING * `, [
+    id,
+    data.email ?? null,
+    data.name ?? null]
   );
   return result.rows.length ? mapUserWithoutPassword(result.rows[0]) : null;
 };
 
 export const resetPasswordHash = async (id: number, password: string): Promise<User | null> => {
-  const result = await pool.query(`UPDATE users SET password_hash = $2 WHERE id = $1 AND role = 'student' RETURNING * `, [
+  const result = await pool.query(`UPDATE users SET password = $2 WHERE id = $1 AND role = 'student' RETURNING * `, [
     id,
     password]);
   return result.rows.length ? mapUser(result.rows[0]) : null;
