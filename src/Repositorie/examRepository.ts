@@ -16,16 +16,36 @@ const EXAM_COLUMNS = `
   end_at AS "endsAt",
   created_at AS "createdAt"
 `;
+const EXAM_LIST_COLUMNS = `
+    e.id,
+    e.course_id AS "courseId",
+    e.title,
+    e.description,
+    e.start_at AS "startsAt",
+    e.end_at AS "endsAt",
+    e.created_at AS "createdAt",
 
+    json_build_object(
+        'id', c.id,
+        'code', c.code,
+        'name', c.name
+    ) AS course,
+
+    COUNT(DISTINCT q.id)::int AS question_count,
+    COUNT(DISTINCT a.id)::int AS attempt_count
+`;
 export const examRepository = {
-    async findAll(): Promise<Exam[]> {
-        const result = await pool.query<Exam>(
-            `
-            SELECT ${EXAM_COLUMNS}
-            FROM exams
-            ORDER BY start_at DESC
-            `
-        );
+    async findAll(): Promise<ExamWithCourse[]> {
+    const result = await pool.query<ExamWithCourse>(`
+        SELECT ${EXAM_LIST_COLUMNS}
+
+        FROM exams e
+
+        LEFT JOIN courses c
+            ON c.id = e.course_id
+
+        LEFT JOIN questions q
+            ON q.exam_id = e.id
 
         return result.rows;
     },
@@ -38,26 +58,13 @@ export const examRepository = {
             e.course_id AS "courseId",
             e.title,
             e.description,
-            e.start_at AS "startsAt",
-            e.end_at AS "endsAt",
-            e.created_at AS "createdAt",
-            c.code AS "courseCode",
-            c.name AS "courseName",
-            COALESCE(att.attempt_count, 0) AS "attemptsCount",
-            COALESCE(q.question_count, 0) AS "questionCount",
-            COALESCE(q.total_points, 0) AS "totalPoints"
-        FROM exams e
-        JOIN courses c ON c.id = e.course_id
-        LEFT JOIN (
-            SELECT exam_id, COUNT(*)::int AS attempt_count
-            FROM attempts
-            GROUP BY exam_id
-        ) att ON att.exam_id = e.id
-        LEFT JOIN (
-            SELECT exam_id, COUNT(*)::int AS question_count, COALESCE(SUM(points), 0)::int AS total_points
-            FROM questions
-            GROUP BY exam_id
-        ) q ON q.exam_id = e.id
+            e.start_at,
+            e.end_at,
+            e.created_at,
+            c.id,
+            c.code,
+            c.name
+
         ORDER BY e.start_at DESC
         `
         );
