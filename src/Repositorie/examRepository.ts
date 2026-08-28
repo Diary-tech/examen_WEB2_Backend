@@ -36,7 +36,7 @@ const EXAM_LIST_COLUMNS = `
 `;
 export const examRepository = {
     async findAll(): Promise<ExamWithCourse[]> {
-    const result = await pool.query<ExamWithCourse>(`
+        const result = await pool.query<ExamWithCourse>(`
         SELECT ${EXAM_LIST_COLUMNS}
 
         FROM exams e
@@ -47,15 +47,12 @@ export const examRepository = {
         LEFT JOIN questions q
             ON q.exam_id = e.id
 
-        return result.rows;
-    },
+        LEFT JOIN attempts a
+            ON a.exam_id = e.id
 
-    async findAllWithMeta(): Promise<ExamWithMeta[]> {
-        const result = await pool.query(
-            `
-        SELECT
+        GROUP BY
             e.id,
-            e.course_id AS "courseId",
+            e.course_id,
             e.title,
             e.description,
             e.start_at,
@@ -66,15 +63,57 @@ export const examRepository = {
             c.name
 
         ORDER BY e.start_at DESC
-        `
-        );
+    `);
+
+        return result.rows;
+    },
+    async findAllWithMeta(): Promise<ExamWithMeta[]> {
+        const result = await pool.query(`
+        SELECT
+            e.id,
+            e.course_id AS "courseId",
+            e.title,
+            e.description,
+            e.start_at AS "startsAt",
+            e.end_at AS "endsAt",
+            e.created_at AS "createdAt",
+
+            json_build_object(
+                'id', c.id,
+                'code', c.code,
+                'name', c.name
+            ) AS course,
+
+            COUNT(DISTINCT a.id)::int AS "attemptsCount"
+
+        FROM exams e
+
+        INNER JOIN courses c
+            ON c.id = e.course_id
+
+        LEFT JOIN attempts a
+            ON a.exam_id = e.id
+
+        GROUP BY
+            e.id,
+            e.course_id,
+            e.title,
+            e.description,
+            e.start_at,
+            e.end_at,
+            e.created_at,
+            c.id,
+            c.code,
+            c.name
+
+        ORDER BY e.start_at DESC
+    `);
 
         return result.rows.map((row: any) => ({
             ...row,
             isLocked: row.attemptsCount > 0,
         }));
     },
-
     async findById(id: number): Promise<Exam | null> {
         const result = await pool.query<Exam>(
             `
