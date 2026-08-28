@@ -52,6 +52,25 @@ export const courseRepository = {
         return result.rows[0] ?? null;
     },
 
+    async findAllWithExamCount(): Promise<(Course & { examCount: number })[]> {
+        const result = await pool.query(
+            `
+        SELECT
+            c.id,
+            c.code,
+            c.name,
+            c.description,
+            c.created_at AS "createdAt",
+            COUNT(e.id)::int AS "examCount"
+        FROM courses c
+        LEFT JOIN exams e ON e.course_id = c.id
+        GROUP BY c.id
+        ORDER BY c.code
+        `
+        );
+        return result.rows;
+    },
+
     async create(data: CreateCourseInput): Promise<Course> {
         const result = await pool.query<Course>(
             `
@@ -67,7 +86,6 @@ export const courseRepository = {
                 data.description ?? null,
             ]
         );
-
         return result.rows[0];
     },
 
