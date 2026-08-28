@@ -8,6 +8,14 @@ export interface Exam {
   createdAt: Date;
 }
 
+export interface ExamWithCourse extends Exam {
+  course: {
+    id: number;
+    code: string;
+    name: string;
+  };
+}
+
 export interface CreateExamInput {
   courseId: number;
   title: string;
@@ -26,5 +34,5 @@ export interface UpdateExamInput {
 export interface ExamWithMeta extends Exam {
   courseName: string;
   attemptsCount: number;
-  isLocked: boolean; 
+  isLocked: boolean;
 }

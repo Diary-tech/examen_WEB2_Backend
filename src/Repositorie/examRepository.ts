@@ -1,6 +1,7 @@
 import { pool } from "../config/database";
 import {
     Exam,
+    ExamWithCourse,
     CreateExamInput,
     UpdateExamInput,
 } from "../model/exam";
@@ -28,7 +29,7 @@ const EXAM_LIST_COLUMNS = `
 `;
 export const examRepository = {
     async findAll(): Promise<Exam[]> {
-    const result = await pool.query<Exam>(`
+        const result = await pool.query<Exam>(`
         SELECT ${EXAM_LIST_COLUMNS}
         FROM exams e
 
@@ -50,8 +51,8 @@ export const examRepository = {
         ORDER BY e.start_at DESC
     `);
 
-    return result.rows;
-},
+        return result.rows;
+    },
 
     async findById(id: number): Promise<Exam | null> {
         const result = await pool.query<Exam>(
@@ -65,7 +66,39 @@ export const examRepository = {
 
         return result.rows[0] ?? null;
     },
+    async findByIdWithCourse(
+        id: number
+    ): Promise<ExamWithCourse | null> {
 
+        const result = await pool.query<ExamWithCourse>(
+            `
+        SELECT
+            e.id,
+            e.course_id AS "courseId",
+            e.title,
+            e.description,
+            e.start_at AS "startsAt",
+            e.end_at AS "endsAt",
+            e.created_at AS "createdAt",
+
+            json_build_object(
+                'id', c.id,
+                'code', c.code,
+                'name', c.name
+            ) AS course
+
+        FROM exams e
+
+        INNER JOIN courses c
+            ON c.id = e.course_id
+
+        WHERE e.id = $1
+        `,
+            [id]
+        );
+
+        return result.rows[0] ?? null;
+    },
     async create(data: CreateExamInput): Promise<Exam> {
         const result = await pool.query<Exam>(
             `
