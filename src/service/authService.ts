@@ -38,11 +38,13 @@ export const authService = {
             role: user.role,
         });
 
-        const { password: _password, ...publicUser } = user;
-
         return {
             token,
-            user: publicUser,
+            user: {
+                id: user.id,
+                name: user.name,
+                role: user.role,
+            },
         };
     },
 };
