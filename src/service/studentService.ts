@@ -17,8 +17,8 @@ export const createStudent = async (input: CreateUserInput) => {
 
   return userRepository.createUser({
     email: input.email,
-    fullName: input.fullName,
-    passwordHash,
+    name: input.name,
+    password: passwordHash,
     role: 'student',
   });
 }
