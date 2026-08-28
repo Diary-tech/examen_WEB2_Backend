@@ -298,25 +298,29 @@ export const getExamResultsSummary = async (
     const rows =
         await attemptRepository.listForExamWithStudent(examId);
 
-    const questions =
-        await questionRepository.findByExamId(examId);
-
-    const totalPoints = questions.reduce(
-        (sum, q) => sum + q.points,
-        0
-    );
+    const totalPoints =
+        await questionRepository.sumPointsForExam(examId);
 
     const average =
         rows.length === 0
-            ? 0
-            : rows.reduce((sum, row) => sum + row.score, 0) / rows.length;
+            ? null
+            : rows.reduce((sum, row) => sum + row.score, 0) /
+              rows.length;
 
     return {
-        examTitle: exam.title,
+        exam: {
+            id: exam.id,
+            title: exam.title,
+        },
         totalPoints,
-        rows,
+        attemptCount: rows.length,
         average,
-        attemptsCount: rows.length,
+        results: rows.map((row) => ({
+            studentId: row.studentId,
+            studentName: row.studentName,
+            score: row.score,
+            submittedAt: row.submittedAt,
+        })),
     };
 };
 
