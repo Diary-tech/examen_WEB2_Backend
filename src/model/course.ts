@@ -4,6 +4,7 @@ export interface Course {
   name: string;
   description: string | null;
   createdAt: Date;
+  exam_count?: number;
 }
 
 export interface CreateCourseInput {
