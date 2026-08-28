@@ -18,7 +18,7 @@ export const authService = {
 
         if (!user.isActive) {
             throw new ForbiddenError(
-                "This account has been deactivated"
+                "This account has been desactivated"
             );
         }
 
