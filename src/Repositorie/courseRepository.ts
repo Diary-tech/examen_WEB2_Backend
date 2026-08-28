@@ -6,20 +6,30 @@ import {
 } from "../model/course";
 
 const COURSE_COLUMNS = `
-  id,
-  code,
-  name,
-  description,
-  created_at AS "createdAt"
+    c.id,
+    c.code,
+    c.name,
+    c.description,
+    c.created_at AS "createdAt"
 `;
 
 export const courseRepository = {
     async findAll(): Promise<Course[]> {
         const result = await pool.query<Course>(
             `
-            SELECT ${COURSE_COLUMNS}
-            FROM courses
-            ORDER BY code
+            SELECT
+                ${COURSE_COLUMNS},
+                COUNT(e.id)::int AS exam_count
+            FROM courses c
+            LEFT JOIN exams e
+                ON e.course_id = c.id
+            GROUP BY
+                c.id,
+                c.code,
+                c.name,
+                c.description,
+                c.created_at
+            ORDER BY c.code
             `
         );
 
@@ -29,9 +39,10 @@ export const courseRepository = {
     async findById(id: number): Promise<Course | null> {
         const result = await pool.query<Course>(
             `
-            SELECT ${COURSE_COLUMNS}
-            FROM courses
-            WHERE id = $1
+            SELECT
+                ${COURSE_COLUMNS}
+            FROM courses c
+            WHERE c.id = $1
             `,
             [id]
         );
@@ -42,9 +53,10 @@ export const courseRepository = {
     async findByCode(code: string): Promise<Course | null> {
         const result = await pool.query<Course>(
             `
-            SELECT ${COURSE_COLUMNS}
-            FROM courses
-            WHERE code = $1
+            SELECT
+                ${COURSE_COLUMNS}
+            FROM courses c
+            WHERE c.code = $1
             `,
             [code]
         );
@@ -59,7 +71,12 @@ export const courseRepository = {
                 (code, name, description)
             VALUES
                 ($1, $2, $3)
-            RETURNING ${COURSE_COLUMNS}
+            RETURNING
+                id,
+                code,
+                name,
+                description,
+                created_at AS "createdAt"
             `,
             [
                 data.code,
@@ -83,7 +100,12 @@ export const courseRepository = {
                 name = COALESCE($3, name),
                 description = COALESCE($4, description)
             WHERE id = $1
-            RETURNING ${COURSE_COLUMNS}
+            RETURNING
+                id,
+                code,
+                name,
+                description,
+                created_at AS "createdAt"
             `,
             [
                 id,
