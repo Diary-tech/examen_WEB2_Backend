@@ -64,8 +64,8 @@ export const examRepository = {
         ORDER BY e.start_at DESC
     `);
 
-    return result.rows;
-},
+        return result.rows;
+    },
 
     async findById(id: number): Promise<Exam | null> {
         const result = await pool.query<Exam>(
