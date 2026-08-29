@@ -255,6 +255,10 @@ export const getAttemptResult = async (
                 (choice) => choice.isCorrect
             );
 
+            const selectedChoice = question.choices.find(
+                (choice) => choice.id === answer?.choiceId
+            );
+
             const isCorrect =
                 !!answer &&
                 !!correctChoice &&
@@ -264,13 +268,11 @@ export const getAttemptResult = async (
                 questionId: question.id,
                 statement: question.statement,
                 points: question.points,
-                earnedPoints: isCorrect
-                    ? question.points
-                    : 0,
-                selectedChoiceId:
-                    answer?.choiceId ?? null,
-                correctChoiceId:
-                    correctChoice?.id ?? 0,
+                earnedPoints: isCorrect ? question.points : 0,
+                selectedChoiceId: answer?.choiceId ?? null,
+                selectedChoiceLabel: selectedChoice?.label ?? null,
+                correctChoiceId: correctChoice?.id ?? 0,
+                correctChoiceLabel: correctChoice?.label ?? "",
                 isCorrect,
             };
         });
@@ -305,7 +307,7 @@ export const getExamResultsSummary = async (
         rows.length === 0
             ? null
             : rows.reduce((sum, row) => sum + row.score, 0) /
-              rows.length;
+            rows.length;
 
     return {
         exam: {

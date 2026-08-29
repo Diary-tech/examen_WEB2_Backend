@@ -26,7 +26,9 @@ export interface QuestionCorrection {
   points: number;
   earnedPoints: number;
   selectedChoiceId: number | null;
+  selectedChoiceLabel: string | null;
   correctChoiceId: number;
+  correctChoiceLabel: string;
   isCorrect: boolean;
 }
 
@@ -44,6 +46,6 @@ export interface ExamResultsSummary {
   };
   totalPoints: number;
   attemptCount: number;
-  average: number | null;   
+  average: number | null;
   results: ExamResultRow[];
 }
