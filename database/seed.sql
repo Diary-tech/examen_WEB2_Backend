@@ -30,8 +30,6 @@ VALUES (
 )
 ON CONFLICT (email) DO NOTHING;
 
-
-
 INSERT INTO courses (
     code,
     name
